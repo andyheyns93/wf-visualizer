@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+
+# Build output (harness → dist/graph, extension → dist/extension)
+dist/
+
+# Test artifacts
+tests/test-results/
+playwright-report/
+.playwright/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*

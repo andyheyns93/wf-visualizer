@@ -1,0 +1,1587 @@
+:root {
+  /* Azure DevOps dark theme (neutral Fluent palette). Kept in sync with the extension copy
+     in src/extension/panel.css. The harness renders dark only. */
+  --bg: #1b1a19;
+  --panel: #252423;
+  --panel-2: #323130;
+  --border: #3b3a39;
+  --text: #f3f2f1;
+  --muted: #c8c6c4;
+  --accent: #4ca0ea;
+  --on-accent: #ffffff;
+  --trigger: #54b054;
+  --error: #f1707b;
+
+  /* graph tokens */
+  --node-bg: #252423;
+  --node-border: #3b3a39;
+  --node-name: #f3f2f1;
+  --scope-bg: rgba(255, 255, 255, 0.035);
+  --scope-border: #3b3a39;
+  --branch-bg: rgba(255, 255, 255, 0.02);
+  --branch-border: #3b3a39;
+  --chip-bg: #1b1a19;
+  --code-bg: #141312;
+  --toggle-off: #484644;
+  --handle: #797775;
+
+  --diff-added: #22c55e;
+  --diff-removed: #ef4444;
+  --diff-changed: #eab308;
+  --diff-renamed: #a855f7;
+  --diff-add-text: #6ccf7a;
+  --diff-del-text: #f1707b;
+
+  color-scheme: dark;
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* Harness shell — laid out like the extension panel: a header bar over a full-bleed canvas. */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* Header + context row match the extension panel (.wf-ext-header / .wf-ext-context). */
+.hz-header {
+  flex: none;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.hz-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.hz-sub {
+  margin-top: 2px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.hz-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.hz-select {
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 12px;
+}
+
+.hz-btn {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 7px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.hz-btn:hover {
+  border-color: var(--accent);
+}
+
+.hz-btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+/* Transparent icon button, matching the dialog close (.imp-dialog__close) / the extension. */
+.hz-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.hz-icon-btn:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.hz-icon-btn svg {
+  display: block;
+}
+
+.hz-canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* Empty state = the import call-to-action. */
+.hz-empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+/* Empty canvas hosts the import wizard, centered in a padded container (not full width). */
+.hz-import-inline {
+  width: 100%;
+  max-width: 880px;
+  min-height: min(520px, 100%);
+  max-height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 32px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: auto;
+}
+
+.hz-empty__samples {
+  width: 100%;
+}
+
+.hz-empty__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+/* Floating run-after legend — top-left, clear of React Flow's bottom-left controls. */
+.hz-legend {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.hz-legend__title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.fixture-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fixture {
+  text-align: left;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.fixture:hover {
+  border-color: var(--accent);
+}
+
+/* WorkflowView's own empty/error state (shared with the extension). */
+.canvas__empty {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  color: var(--muted);
+}
+
+/* ---- Nodes ---- */
+.wf-node {
+  width: 100%;
+  height: 100%;
+  padding: 9px 13px;
+  border-radius: 8px;
+  border: 1px solid var(--node-border);
+  background: var(--node-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  overflow: hidden;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+}
+
+.wf-node__head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.wf-node__icon {
+  flex: none;
+  width: 17px;
+  height: 17px;
+  border-radius: 5px;
+  display: grid;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.wf-node__type {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-node__name {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--node-name);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-node--trigger {
+  border-color: var(--trigger);
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35);
+}
+
+.wf-node--trigger .wf-node__name {
+  color: var(--trigger);
+}
+
+/* ---- Scope containers ---- */
+.wf-scope {
+  width: 100%;
+  height: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--scope-border);
+  background: var(--scope-bg);
+}
+
+.wf-scope--collapsed {
+  background: var(--node-bg);
+}
+
+.wf-scope__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 12px 0 8px;
+}
+
+.wf-scope__toggle {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  display: grid;
+  place-items: center;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wf-scope__toggle:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.wf-scope__icon {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 4px;
+}
+
+.wf-scope__count {
+  font-size: 10px;
+  color: var(--muted);
+  margin-left: auto;
+}
+
+.wf-scope__name {
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--node-name);
+}
+
+.wf-scope__badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+  border: 1px solid var(--scope-border);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+/* ---- Branch sub-panels ---- */
+.wf-branch {
+  width: 100%;
+  height: 100%;
+  border-radius: 8px;
+  border: 1px solid var(--branch-border);
+  background: var(--branch-bg);
+}
+
+.wf-branch__header {
+  height: 36px;
+  padding: 0 12px;
+  display: flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  color: var(--muted);
+}
+
+/* ---- Inspector panel ---- */
+.inspector {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  bottom: 12px;
+  width: 360px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.45);
+  z-index: 5;
+  overflow: hidden;
+}
+
+/* Collapsed: shrink to just the header. */
+.inspector--collapsed {
+  bottom: auto;
+}
+
+.inspector--collapsed .inspector__header {
+  border-bottom: none;
+}
+
+.inspector__header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 14px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.inspector__icon {
+  flex: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.inspector__titles {
+  flex: 1;
+  min-width: 0;
+}
+
+.inspector__name {
+  font-size: 15px;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.inspector__type {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.inspector__close {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.inspector__close:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+/* Tab bar — fixed (doesn't scroll), so the Fields/Raw toggle stays visible. */
+.inspector__tabs {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 0 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.inspector__tabbtns {
+  display: flex;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.inspector__tab {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font: inherit;
+  font-size: 12px;
+  padding: 9px 8px;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+}
+
+.inspector__tab:hover {
+  color: var(--text);
+}
+
+.inspector__tab--active {
+  color: var(--text);
+  border-bottom-color: var(--accent);
+}
+
+.inspector__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.inspector__label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+
+.inspector__summary {
+  cursor: pointer;
+}
+
+.inspector__muted {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.inspector__deps {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.inspector__deps li {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  padding: 7px 10px;
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.inspector__dep-statuses {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.inspector__dep-dot {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.inspector__code {
+  margin: 0;
+  padding: 10px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---- Status edges ---- */
+.wf-edge-label {
+  position: absolute;
+  display: flex;
+  gap: 3px;
+  pointer-events: none;
+}
+
+.wf-edge-chip {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 1px 5px;
+  border-radius: 4px;
+  border: 1px solid;
+  background: var(--chip-bg);
+}
+
+/* ---- Legend (run-after status; harness floating box) ---- */
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.legend__swatch {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  flex: none;
+}
+
+/* React Flow handles: small connector dots. */
+.react-flow__handle {
+  width: 6px;
+  height: 6px;
+  background: var(--handle);
+  border: none;
+}
+
+/* Controls (zoom in/out, fit view) — themed to sit on the navy canvas. */
+.react-flow__controls {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
+}
+
+.react-flow__controls-button {
+  width: 28px;
+  height: 28px;
+  background: var(--panel-2);
+  border: none;
+  border-bottom: 1px solid var(--border);
+  padding: 0;
+}
+
+.react-flow__controls-button:last-child {
+  border-bottom: none;
+}
+
+.react-flow__controls-button:hover {
+  background: var(--panel-2);
+}
+
+.react-flow__controls-button svg {
+  width: 13px;
+  height: 13px;
+  max-width: 13px;
+  max-height: 13px;
+  fill: var(--text);
+}
+
+/*
+ * Diff highlighting (PR before/after). Each status gets a fill tint (visible when zoomed
+ * out), a bold left gutter stripe, and a border — so changes read at any zoom level.
+ */
+.wf-node.wf-diff--added,
+.wf-scope.wf-diff--added {
+  border-color: var(--diff-added);
+  box-shadow: inset 5px 0 0 var(--diff-added), 0 0 0 1px var(--diff-added);
+  background-image: linear-gradient(0deg, rgba(34, 197, 94, 0.16), rgba(34, 197, 94, 0.16));
+}
+
+.wf-node.wf-diff--removed,
+.wf-scope.wf-diff--removed {
+  border-color: var(--diff-removed);
+  box-shadow: inset 5px 0 0 var(--diff-removed), 0 0 0 1px var(--diff-removed);
+  background-image: linear-gradient(0deg, rgba(239, 68, 68, 0.16), rgba(239, 68, 68, 0.16));
+}
+
+.wf-node.wf-diff--changed,
+.wf-scope.wf-diff--changed {
+  border-color: var(--diff-changed);
+  box-shadow: inset 5px 0 0 var(--diff-changed), 0 0 0 1px var(--diff-changed);
+  background-image: linear-gradient(0deg, rgba(234, 179, 8, 0.16), rgba(234, 179, 8, 0.16));
+}
+
+.wf-node.wf-diff--renamed,
+.wf-scope.wf-diff--renamed {
+  border-color: var(--diff-renamed);
+  box-shadow: inset 5px 0 0 var(--diff-renamed), 0 0 0 1px var(--diff-renamed);
+  background-image: linear-gradient(0deg, rgba(168, 85, 247, 0.16), rgba(168, 85, 247, 0.16));
+}
+
+.wf-node.wf-diff--unchanged,
+.wf-scope.wf-diff--unchanged {
+  opacity: 0.5;
+}
+
+/* Current change (diff navigator) — a brighter ring + subtle pulse. */
+.wf-node.wf-focused,
+.wf-scope.wf-focused {
+  box-shadow: 0 0 0 3px var(--accent), 0 0 16px 2px var(--accent);
+  animation: wf-focus-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wf-focus-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 3px var(--accent), 0 0 12px 1px var(--accent);
+  }
+  50% {
+    box-shadow: 0 0 0 3px var(--accent), 0 0 22px 5px var(--accent);
+  }
+}
+
+.wf-node__rename {
+  font-size: 10px;
+  color: var(--diff-renamed);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Diff view (two panes) ---- */
+.wf-diff {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.wf-diff__legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.wf-diff__legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wf-diff__swatch {
+  width: 14px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+.wf-diff__count {
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* ---- Floating change navigator ---- */
+.wf-diff-nav {
+  position: absolute;
+  top: 44px;
+  left: 12px;
+  z-index: 6;
+  width: 232px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  overflow: hidden;
+  font-size: 12px;
+}
+
+.wf-diff-nav__bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+}
+
+.wf-diff-nav__pos {
+  flex: 1;
+  text-align: left;
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  background: transparent;
+  border: none;
+  font: inherit;
+  padding: 0;
+  cursor: pointer;
+}
+
+.wf-diff-nav__pos:disabled {
+  cursor: default;
+}
+
+.wf-diff-nav__pos:not(:disabled):hover {
+  color: var(--text);
+}
+
+.wf-diff-nav__btn {
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  border-radius: 6px;
+  width: 26px;
+  height: 24px;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.wf-diff-nav__btn:hover:not(:disabled) {
+  border-color: var(--accent);
+}
+
+.wf-diff-nav__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.wf-diff-nav__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow: auto;
+  border-top: 1px solid var(--border);
+}
+
+.wf-diff-nav__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border);
+}
+
+.wf-diff-nav__item:last-child {
+  border-bottom: none;
+}
+
+.wf-diff-nav__item:hover {
+  background: var(--panel-2);
+}
+
+.wf-diff-nav__item--active {
+  background: var(--panel-2);
+  box-shadow: inset 3px 0 0 var(--accent);
+}
+
+.wf-diff-nav__dot {
+  flex: none;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.wf-diff-nav__name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wf-diff-nav__tag {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+
+.wf-diff-nav__empty {
+  padding: 10px;
+  color: var(--muted);
+}
+
+.wf-diff__panes {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+.wf-diff__pane {
+  position: relative;
+  min-width: 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.wf-diff__pane:last-child {
+  border-right: none;
+}
+
+.wf-diff__pane-title {
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.wf-diff__canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- Diff inspector: line diff ---- */
+.diff-lines {
+  margin: 0;
+  padding: 10px;
+  background: var(--code-bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+  overflow: auto;
+}
+
+.diff-lines__row {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.diff-lines__row--add {
+  background: rgba(34, 197, 94, 0.16);
+  color: var(--diff-add-text);
+}
+
+.diff-lines__row--del {
+  background: rgba(239, 68, 68, 0.16);
+  color: var(--diff-del-text);
+}
+
+/* ---- Fields view (designer-style JSON) ---- */
+/* Form-style field list: each field is a label stacked above a full-width value. */
+.jf {
+  padding: 12px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.45;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.jf-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.jf-key {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--muted);
+}
+
+.jf-val {
+  color: var(--text);
+  word-break: break-word;
+}
+
+/* String / number: a read-only field box (full width like a form input). */
+.jf-field {
+  display: block;
+  width: 100%;
+  padding: 5px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.jf-null {
+  color: var(--muted);
+  font-style: italic;
+  padding: 4px 2px;
+}
+
+/* Logic App expression (@…) — distinct accent + badge. */
+.jf-field--expr {
+  border-left: 3px solid var(--diff-renamed);
+}
+
+.jf-expr-badge {
+  display: inline-block;
+  margin-right: 6px;
+  font-weight: 700;
+  font-style: italic;
+  color: var(--diff-renamed);
+}
+
+/* Long / multi-line text — cap the height and scroll. */
+.jf-field--long {
+  max-height: 160px;
+  overflow: auto;
+}
+
+/* Deep object/array value — pretty-printed JSON block. */
+.jf-json {
+  margin: 0;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--code-bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 11.5px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow: auto;
+  max-height: 220px;
+}
+
+.jf-json.jf--add {
+  border-color: var(--diff-added);
+  color: var(--diff-add-text);
+  text-decoration: none;
+}
+
+.jf-json.jf--del {
+  border-color: var(--diff-removed);
+  color: var(--diff-del-text);
+  text-decoration: none;
+}
+
+/* URL — a clickable link styled as a field. */
+a.jf-field.jf-link {
+  display: block;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a.jf-field.jf-link:hover {
+  text-decoration: underline;
+}
+
+/* Boolean: a read-only toggle switch, left-aligned under its label. */
+.jf-toggle {
+  flex: none;
+  align-self: flex-start;
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 16px;
+  margin-top: 2px;
+  border-radius: 999px;
+  background: var(--toggle-off);
+  cursor: default;
+}
+
+.jf-toggle--on {
+  background: var(--trigger);
+}
+
+.jf-toggle__knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  transition: left 0.15s ease;
+}
+
+.jf-toggle--on .jf-toggle__knob {
+  left: 16px;
+}
+
+/* Nested objects/arrays: an indented group under the label. */
+.jf-nest {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: 2px;
+  padding-left: 12px;
+  border-left: 2px solid var(--border);
+}
+
+/* Changed scalar: old → new, side by side (wrap when long). */
+.jf-change {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.jf-change .jf-field {
+  width: auto;
+  max-width: 100%;
+}
+
+.jf-arrow {
+  color: var(--muted);
+}
+
+.jf--add {
+  color: var(--diff-add-text);
+}
+
+.jf--del {
+  color: var(--diff-del-text);
+  text-decoration: line-through;
+}
+
+.jf-field.jf--add {
+  border-color: var(--diff-added);
+}
+
+.jf-field.jf--del {
+  border-color: var(--diff-removed);
+}
+
+.jf-toggle.jf--add {
+  outline: 1px solid var(--diff-added);
+}
+
+.jf-toggle.jf--del {
+  outline: 1px solid var(--diff-removed);
+  opacity: 0.7;
+}
+
+/* ---- Fields / Raw view toggle ---- */
+.inspector__viewtoggle {
+  flex: none;
+  display: inline-flex;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.inspector__viewtoggle button {
+  border: none;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 11px;
+  padding: 3px 10px;
+  cursor: pointer;
+}
+
+.inspector__viewtoggle button + button {
+  border-left: 1px solid var(--border);
+}
+
+.inspector__viewtoggle button.is-active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+/* ---- Harness import dialog ---- */
+.imp-overlay {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 50;
+}
+
+/* Dialog box: near-full-screen container holding the shared ImportForm. */
+.imp-box {
+  position: relative;
+  width: calc(100vw - 48px);
+  height: calc(100vh - 48px);
+  overflow: hidden;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.55);
+  padding: 18px;
+  display: flex;
+}
+
+.imp-dialog__close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.imp-dialog__close:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+/* The import wizard (used inline in the empty canvas and inside the dialog). */
+.imp-form {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.imp-wiz__title {
+  flex: none;
+  text-align: center;
+}
+
+.imp-wiz__question {
+  flex: none;
+  text-align: center;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.imp-wiz__body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Step progress indicator (icons + connectors). */
+.imp-steps {
+  flex: none;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  align-items: flex-start;
+}
+
+.imp-step {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+/* Connector line to the previous step. */
+.imp-step:not(:first-child)::before {
+  content: '';
+  position: absolute;
+  top: 15px;
+  right: 50%;
+  left: -50%;
+  height: 2px;
+  background: var(--border);
+  z-index: 0;
+}
+
+.imp-step--done::before,
+.imp-step--current::before {
+  background: var(--accent);
+}
+
+.imp-step__dot {
+  position: relative;
+  z-index: 1;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--border);
+  background: var(--panel);
+  color: var(--muted);
+}
+
+.imp-step--current .imp-step__dot {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.imp-step--done .imp-step__dot {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.imp-step__label {
+  position: relative;
+  z-index: 1;
+}
+
+.imp-step--current .imp-step__label {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.imp-step--done .imp-step__label {
+  color: var(--text);
+}
+
+.imp-step--clickable {
+  cursor: pointer;
+}
+
+/* Step 1/2 choice cards. */
+.imp-choices {
+  display: flex;
+  gap: 12px;
+}
+
+.imp-choice {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  padding: 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.imp-choice:hover {
+  border-color: var(--accent);
+}
+
+.imp-choice.is-active {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.imp-choice__icon {
+  flex: none;
+  color: var(--accent);
+  line-height: 0;
+}
+
+.imp-choice__icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.imp-choice__text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.imp-choice__title {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.imp-choice__sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.imp-field__label {
+  flex: none;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+}
+
+.imp-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.imp-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.imp-seg {
+  display: inline-flex;
+  align-self: flex-start;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.imp-seg button {
+  border: none;
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.imp-seg button + button {
+  border-left: 1px solid var(--border);
+}
+
+.imp-seg button.is-active {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.imp-area {
+  flex: 1 1 0;
+  width: 100%;
+  min-height: 100px;
+  resize: none;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--code-bg);
+  color: var(--text);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+/* Paste (left) and drop (right) side by side, split by a vertical separator. */
+.imp-cols {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+}
+
+.imp-cols__left {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 20px;
+}
+
+.imp-cols__right {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  border-left: 1px solid var(--border);
+}
+
+/* File area: a clear drag/drop zone — click to browse or drop a file; shows the filename. */
+.imp-drop {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 132px;
+  padding: 22px;
+  border: 2px dashed var(--border);
+  border-radius: 10px;
+  color: var(--muted);
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.12s ease, background 0.12s ease, color 0.12s ease;
+}
+
+.imp-drop:hover,
+.imp-drop--over {
+  border-color: var(--accent);
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.imp-drop__icon {
+  color: var(--accent);
+  line-height: 0;
+}
+
+.imp-drop__title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.imp-drop__sub {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.imp-drop__file {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.imp-drop__remove {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1;
+  padding: 0 2px;
+  cursor: pointer;
+}
+
+.imp-drop__remove:hover {
+  color: var(--text);
+}
+
+.imp-error {
+  font-size: 12px;
+  color: var(--error);
+}
+
+.imp-actions {
+  flex: none;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.imp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.imp-btn:hover {
+  border-color: var(--accent);
+}
+
+.imp-btn--icon {
+  padding: 7px 9px;
+}
+
+.imp-btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}
+
+/* Context row under the header — identical to the extension panel's .wf-ext-context. */
+.wf-ext-context {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wf-ext-surface {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-all;
+}

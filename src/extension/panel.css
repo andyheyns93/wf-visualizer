@@ -1,0 +1,296 @@
+/*
+ * Extension panel styles. Injected into the content-script shadow root, so the design
+ * tokens are declared on :host (the page's :root is out of reach inside the shadow tree).
+ */
+/*
+ * Design tokens track the actual Azure DevOps themes (Fluent neutral palette): a neutral
+ * dark by default (:host), a neutral light via [data-theme='light']. Kept in sync with the
+ * harness copy in src/styles.css.
+ */
+:host {
+  /* Azure DevOps dark theme (neutral) */
+  --bg: #1b1a19;
+  --panel: #252423;
+  --panel-2: #323130;
+  --border: #3b3a39;
+  --text: #f3f2f1;
+  --muted: #c8c6c4;
+  --accent: #4ca0ea;
+  --on-accent: #ffffff;
+  --trigger: #54b054;
+  --error: #f1707b;
+  --node-bg: #252423;
+  --node-border: #3b3a39;
+  --node-name: #f3f2f1;
+  --scope-bg: rgba(255, 255, 255, 0.035);
+  --scope-border: #3b3a39;
+  --branch-bg: rgba(255, 255, 255, 0.02);
+  --branch-border: #3b3a39;
+  --chip-bg: #1b1a19;
+  --code-bg: #141312;
+  --toggle-off: #484644;
+  --handle: #797775;
+  /* Diff status colors (shared by both themes; :root in the injected styles.css doesn't
+     match inside a shadow tree, so they must live on :host to reach the extension). */
+  --diff-added: #22c55e;
+  --diff-removed: #ef4444;
+  --diff-changed: #eab308;
+  --diff-renamed: #a855f7;
+  --diff-add-text: #6ccf7a;
+  --diff-del-text: #f1707b;
+}
+
+.wf-ext-root {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+  color-scheme: dark;
+}
+
+/* Azure DevOps light theme (neutral) — applied to the whole shadow subtree. */
+.wf-ext-root[data-theme='light'] {
+  --bg: #ffffff;
+  --panel: #f8f8f8;
+  --panel-2: #f3f2f1;
+  --border: #edebe9;
+  --text: #201f1e;
+  --muted: #605e5c;
+  --accent: #0078d4;
+  --on-accent: #ffffff;
+  --trigger: #107c10;
+  --error: #a4262c;
+  --node-bg: #ffffff;
+  --node-border: #c8c6c4;
+  --node-name: #201f1e;
+  --scope-bg: #faf9f8;
+  --scope-border: #e1dfdd;
+  --branch-bg: #f3f2f1;
+  --branch-border: #e1dfdd;
+  --chip-bg: #ffffff;
+  --code-bg: #f5f4f3;
+  --toggle-off: #c8c6c4;
+  --handle: #a19f9d;
+  --diff-add-text: #0e700e;
+  --diff-del-text: #a4262c;
+  color-scheme: light;
+}
+
+/*
+ * Panel. Defaults to filling the whole page (viewport overlay). When the "match content
+ * area" setting is on and the content container is found, inline styles
+ * (top/left/width/height) position/size it over that container instead.
+ */
+.wf-ext-panel {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  color: var(--text);
+  border-left: 1px solid var(--border);
+  box-shadow: -8px 0 30px rgba(0, 0, 0, 0.5);
+  z-index: 2147483000;
+}
+
+.wf-ext-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wf-ext-title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.wf-ext-crumbs {
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.wf-ext-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.wf-ext-close {
+  display: inline-flex;
+  align-items: center;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px 6px;
+  border-radius: 6px;
+}
+
+.wf-ext-close:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.wf-ext-close svg {
+  display: block;
+}
+
+/* Header "⋮" actions dropdown. */
+.wf-ext-menu {
+  position: relative;
+}
+
+.wf-ext-menu__list {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 4px;
+  min-width: 180px;
+  padding: 4px;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  z-index: 20;
+}
+
+.wf-ext-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.wf-ext-menu__item:hover {
+  background: var(--panel-2);
+}
+
+.wf-ext-menu__item svg {
+  flex: none;
+  color: var(--muted);
+}
+
+.wf-ext-context {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--border);
+}
+
+.wf-ext-surface {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 12px;
+  color: var(--text);
+  word-break: break-all;
+}
+
+.wf-ext-ref {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+
+.wf-ext-graph {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---- Export dialog ---- */
+.wf-ext-dialog {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 10;
+}
+
+.wf-ext-dialog__box {
+  width: min(420px, calc(100% - 32px));
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+  padding: 18px;
+}
+
+.wf-ext-dialog__title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.wf-ext-dialog__hint {
+  margin: 0 0 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--muted);
+}
+
+.wf-ext-dialog__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.wf-ext-dialog__row input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.wf-ext-dialog__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.wf-ext-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--border);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.wf-ext-btn svg {
+  display: block;
+}
+
+.wf-ext-btn:hover {
+  border-color: var(--accent);
+}
+
+.wf-ext-btn--primary {
+  background: var(--accent);
+  color: var(--on-accent);
+  border-color: var(--accent);
+}

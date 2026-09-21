@@ -1,0 +1,63 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "Recurrence": { "type": "Recurrence", "recurrence": { "frequency": "Hour", "interval": 1 } }
+    },
+    "actions": {
+      "List_orders": {
+        "type": "Http",
+        "inputs": { "method": "GET", "uri": "https://api.example.com/orders" },
+        "runAfter": {}
+      },
+      "For_each_order": {
+        "type": "Foreach",
+        "foreach": "@body('List_orders')",
+        "actions": {
+          "Switch_on_status": {
+            "type": "Switch",
+            "expression": "@items('For_each_order')['status']",
+            "cases": {
+              "Shipped": {
+                "case": "shipped",
+                "actions": {
+                  "Notify_shipped": { "type": "ApiConnection", "inputs": {}, "runAfter": {} }
+                }
+              },
+              "Cancelled": {
+                "case": "cancelled",
+                "actions": {
+                  "Refund": {
+                    "type": "Http",
+                    "inputs": { "method": "POST", "uri": "https://api.example.com/refund" },
+                    "runAfter": {}
+                  },
+                  "Notify_cancel": {
+                    "type": "ApiConnection",
+                    "inputs": {},
+                    "runAfter": { "Refund": ["Succeeded"] }
+                  }
+                }
+              }
+            },
+            "default": {
+              "actions": {
+                "Log_unknown": { "type": "Compose", "inputs": "unknown status", "runAfter": {} }
+              }
+            },
+            "runAfter": {}
+          }
+        },
+        "runAfter": { "List_orders": ["Succeeded"] }
+      },
+      "Finalize": {
+        "type": "Scope",
+        "actions": {
+          "Summary": { "type": "Compose", "inputs": "done", "runAfter": {} }
+        },
+        "runAfter": { "For_each_order": ["Succeeded"] }
+      }
+    }
+  }
+}

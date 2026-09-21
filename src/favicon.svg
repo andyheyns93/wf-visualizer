@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" role="img" aria-label="Workflow Visualizer">
+  <rect width="32" height="32" rx="7" fill="#4ca0ea" />
+  <g fill="none" stroke="#ffffff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M16 9v7" />
+    <path d="M16 16l-6 7" />
+    <path d="M16 16l6 7" />
+  </g>
+  <g fill="#ffffff">
+    <circle cx="16" cy="8" r="3.1" />
+    <circle cx="10" cy="23.5" r="3.1" />
+    <circle cx="22" cy="23.5" r="3.1" />
+  </g>
+</svg>

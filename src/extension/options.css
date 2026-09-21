@@ -1,0 +1,244 @@
+/* Azure DevOps neutral themes. The page applies the extension's Theme setting by stamping
+   data-theme on <html> (auto resolves to the OS preference); dark is the default. */
+:root {
+  font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+}
+
+:root,
+:root[data-theme='dark'] {
+  --bg: #1b1a19;
+  --panel: #252423;
+  --panel-2: #323130;
+  --border: #3b3a39;
+  --text: #f3f2f1;
+  --muted: #c8c6c4;
+  --accent: #4ca0ea;
+  --trigger: #54b054;
+  color-scheme: dark;
+}
+
+:root[data-theme='light'] {
+  --bg: #ffffff;
+  --panel: #f8f8f8;
+  --panel-2: #f3f2f1;
+  --border: #edebe9;
+  --text: #201f1e;
+  --muted: #605e5c;
+  --accent: #0078d4;
+  --on-accent: #ffffff;
+  --trigger: #107c10;
+  --error: #a4262c;
+  /* Graph tokens (styles.css only ships the dark set on :root) so the import viewer is
+     light-correct when the options page is light. Mirrors panel.css's light theme. */
+  --node-bg: #ffffff;
+  --node-border: #c8c6c4;
+  --node-name: #201f1e;
+  --scope-bg: #faf9f8;
+  --scope-border: #e1dfdd;
+  --branch-bg: #f3f2f1;
+  --branch-border: #e1dfdd;
+  --chip-bg: #ffffff;
+  --code-bg: #f5f4f3;
+  --toggle-off: #c8c6c4;
+  --handle: #a19f9d;
+  --diff-add-text: #0e700e;
+  --diff-del-text: #a4262c;
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+}
+
+.opt {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 32px 24px;
+}
+
+.opt__title {
+  font-size: 20px;
+  margin: 0 0 4px;
+}
+
+.opt__subtitle {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0 0 24px;
+}
+
+.opt__group {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.opt__group + .opt__group {
+  margin-top: 16px;
+}
+
+.opt__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.opt__row input {
+  margin-top: 3px;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--accent);
+}
+
+.opt__row--select {
+  justify-content: space-between;
+  align-items: center;
+  cursor: default;
+}
+
+.opt__row--select select {
+  flex: none;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+}
+
+.opt__dev summary {
+  cursor: pointer;
+}
+
+.opt__dev-surface {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.opt__dev-field {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.opt__dev-field span {
+  flex: none;
+  width: 110px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.opt__dev-field input {
+  flex: 1;
+  min-width: 0;
+  background: var(--panel-2);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 12px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.opt__label {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.opt__hint {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 400;
+  margin-top: 4px;
+}
+
+.opt__saved {
+  color: var(--trigger);
+  font-size: 12px;
+  height: 16px;
+  margin-top: 12px;
+}
+
+/* Import & visualize (opens the shared wizard + a full-screen graph viewer). */
+.opt__import {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--accent);
+  background: var(--panel-2);
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  padding: 8px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.opt__import:hover {
+  background: var(--accent);
+  color: var(--on-accent);
+}
+
+.opt-viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+.opt-viewer__header {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.opt-viewer__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.opt-viewer__close {
+  flex: none;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.opt-viewer__close:hover {
+  background: var(--panel-2);
+  color: var(--text);
+}
+
+.opt-viewer__canvas {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+}

@@ -1,0 +1,48 @@
+{
+  "name": "wf-visualizer",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Browser extension + standalone dev harness for visualizing Azure Logic App workflows in Azure DevOps.",
+  "license": "MIT",
+  "author": "andyheyns93",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andyheyns93/wf-visualizer.git"
+  },
+  "bugs": {
+    "url": "https://github.com/andyheyns93/wf-visualizer/issues"
+  },
+  "homepage": "https://github.com/andyheyns93/wf-visualizer#readme",
+  "scripts": {
+    "dev": "vite",
+    "dev:sample": "vite --mode sample",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "dev:ext": "vite --config vite.config.extension.ts",
+    "build:ext": "tsc --noEmit && vite build --config vite.config.extension.ts",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:e2e": "npm run build:ext && playwright test",
+    "gen:icons": "node scripts/gen-icons.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dagrejs/dagre": "^3.1.1",
+    "@xyflow/react": "^12.11.6",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0"
+  },
+  "devDependencies": {
+    "@crxjs/vite-plugin": "^2.7.1",
+    "@playwright/test": "^1.63.0",
+    "@types/chrome": "^0.3.0",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "cheerio": "^1.2.0",
+    "typescript": "^7.0.2",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
+  }
+}

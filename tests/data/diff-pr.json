@@ -1,0 +1,31 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "manual": { "type": "Request", "kind": "Http" }
+    },
+    "actions": {
+      "Initialize_state": {
+        "type": "InitializeVariable",
+        "inputs": { "variables": [{ "name": "state", "type": "string" }] },
+        "runAfter": {}
+      },
+      "Compose_message": {
+        "type": "Compose",
+        "inputs": "hello world",
+        "runAfter": { "Initialize_state": ["Succeeded"] }
+      },
+      "New_name": {
+        "type": "Http",
+        "inputs": { "method": "GET", "uri": "https://api.example.com/thing" },
+        "runAfter": { "Compose_message": ["Succeeded"] }
+      },
+      "Notify": {
+        "type": "ApiConnection",
+        "inputs": { "host": { "connection": { "referenceName": "ac_notify" } } },
+        "runAfter": { "New_name": ["Succeeded"] }
+      }
+    }
+  }
+}

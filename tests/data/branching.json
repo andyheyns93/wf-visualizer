@@ -1,0 +1,49 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "When_a_HTTP_request_is_received": { "type": "Request", "kind": "Http" }
+    },
+    "actions": {
+      "Get_item": {
+        "type": "Http",
+        "inputs": { "method": "GET", "uri": "https://api.example.com/item" },
+        "runAfter": {}
+      },
+      "Condition": {
+        "type": "If",
+        "expression": {
+          "and": [{ "greater": ["@outputs('Get_item')['statusCode']", 199] }]
+        },
+        "actions": {
+          "Set_ok": {
+            "type": "SetVariable",
+            "inputs": { "name": "status", "value": "ok" },
+            "runAfter": {}
+          }
+        },
+        "else": {
+          "actions": {
+            "Set_fail": {
+              "type": "SetVariable",
+              "inputs": { "name": "status", "value": "fail" },
+              "runAfter": {}
+            }
+          }
+        },
+        "runAfter": { "Get_item": ["Succeeded"] }
+      },
+      "Handle_failure": {
+        "type": "Terminate",
+        "inputs": { "runStatus": "Failed" },
+        "runAfter": { "Get_item": ["Failed", "TimedOut"] }
+      },
+      "Log_skipped": {
+        "type": "Compose",
+        "inputs": "condition was skipped",
+        "runAfter": { "Condition": ["Skipped"] }
+      }
+    }
+  }
+}

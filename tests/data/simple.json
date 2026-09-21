@@ -1,0 +1,31 @@
+{
+  "definition": {
+    "$schema": "https://schema.management.azure.com/providers/Microsoft.Logic/schemas/2016-06-01/workflowdefinition.json#",
+    "contentVersion": "1.0.0.0",
+    "triggers": {
+      "manual": {
+        "type": "Request",
+        "kind": "Http",
+        "inputs": { "schema": {} }
+      }
+    },
+    "actions": {
+      "Initialize_count": {
+        "type": "InitializeVariable",
+        "inputs": { "variables": [{ "name": "count", "type": "integer", "value": 0 }] },
+        "runAfter": {}
+      },
+      "Compose_greeting": {
+        "type": "Compose",
+        "inputs": "Hello, world",
+        "runAfter": { "Initialize_count": ["Succeeded"] }
+      },
+      "Response": {
+        "type": "Response",
+        "kind": "Http",
+        "inputs": { "statusCode": 200, "body": "@outputs('Compose_greeting')" },
+        "runAfter": { "Compose_greeting": ["Succeeded"] }
+      }
+    }
+  }
+}
